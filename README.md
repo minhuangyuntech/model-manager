@@ -1,8 +1,42 @@
 # 本地模型管理員 · Local Model Manager
 
-SwiftUI + AppKit 原生 macOS 桌面程式，集中瀏覽本機不同管理系統的模型。不需要 Python、Node.js 或第三方套件。掃描完全離線；只有使用者主動開啟網站或下載時才會連線。
+本專案有兩個桌面版本：**Windows／macOS 共用版**先提供本機清單與手動刷新；**原生 macOS 版**保留既有介面與下載中心。兩版的來源設定分開保存。
 
-## 執行
+## Windows／macOS 共用版（首版）
+
+共用版位於 `desktop/`，使用 Tauri 2、Rust 與靜態網頁介面，不需要啟動本機網頁伺服器。支援 Ollama、LM Studio、Hugging Face、ComfyUI 和自訂資料夾。程式只讀取檔案、目錄與 Ollama manifest 來建立清單，不會查詢遠端版本、下載或修改模型。
+
+1. 啟動後會掃描已設定的來源。找不到模型時，在「管理模型來源」加入實際路徑；移除來源只會停止掃描，不會刪除檔案。`OLLAMA_MODELS`、`HF_HUB_CACHE`、`HF_HOME` 可用來覆寫相應的初始路徑。
+2. 在其他工具新增、移除或替換模型後，按「重新掃描」更新清單。介面會顯示完成時間，並列出自各來源上次成功掃描以來新增、移除及變更的項目。首次成功掃描僅建立比較基準，比對資料不跨程式重啟保留。
+3. 遇到資料夾不存在、權限不足或 manifest 損毀時會顯示提示。該來源可能只顯示部分結果，不會把無法讀取的模型誤報為已移除。變更比較依路徑、大小、修改時間與分類等資訊，不讀取權重內容或計算校驗碼；改名會視為移除加新增。
+
+**開發需求：** Rust 1.90+；macOS 14+ 需 Xcode Command Line Tools（`xcode-select --install`）；Windows 10／11 需 Visual Studio C++ Build Tools（含 Windows SDK）、MSVC Rust 工具鏈與 Microsoft Edge WebView2。封裝及執行前端比較測試另需 Node.js 22+。首次建置需取得相依套件。
+
+在專案根目錄執行（適用 PowerShell 與 macOS shell）：
+
+```sh
+cargo run --locked --manifest-path desktop/src-tauri/Cargo.toml
+cargo test --locked --manifest-path desktop/src-tauri/Cargo.toml
+node --test desktop/tests/inventory.test.mjs
+```
+
+進入 `desktop` 後，在各自的作業系統上執行封裝指令：
+
+```sh
+# macOS：產生 .app
+npx --yes @tauri-apps/cli@2.12.6 build --bundles app -- --locked
+
+# Windows：產生 NSIS 安裝程式
+npx --yes @tauri-apps/cli@2.12.6 build --bundles nsis -- --locked
+```
+
+產物位於 `desktop/src-tauri/target/release/bundle/`。這些是開發用封裝：macOS 使用 ad-hoc 簽署，未經 Developer ID 簽署或 Apple 公證；Windows 未做發行簽署，若未安裝 WebView2，安裝程式可能需要連線取得 WebView2。雙平台 CI 設定見 `.github/workflows/desktop.yml`。
+
+## 原生 macOS 版
+
+下列章節和指令適用於原有的 SwiftUI + AppKit 版本。不需要 Python、Node.js 或第三方套件。掃描完全離線；只有使用者主動開啟網站或下載時才會連線。
+
+### 執行
 
 需求：macOS 14+、支援 Swift 6 的 Xcode / Command Line Tools。
 

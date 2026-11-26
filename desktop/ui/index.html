@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>本地模型管理員</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div><h1>本地模型管理員</h1><p>只讀取已設定的本機資料夾，不下載、不修改模型。</p></div>
+      <button id="refresh" type="button" class="primary" disabled>重新掃描</button>
+    </header>
+    <p id="status" role="status">載入來源…</p>
+    <p id="last-scan">尚未完成掃描</p>
+    <p id="error" role="alert" hidden></p>
+    <details id="changes" hidden><summary id="change-summary"></summary><ul id="change-list"></ul></details>
+    <details id="warnings" hidden><summary id="warning-summary"></summary><ul id="warning-list"></ul></details>
+
+    <details id="sources-panel">
+      <summary>管理模型來源</summary>
+      <ul id="sources"></ul>
+      <div class="controls">
+        <label>來源類型 <select id="provider"><option value="custom">自訂資料夾</option></select></label>
+        <button id="add" type="button" disabled>選擇資料夾並加入…</button>
+      </div>
+    </details>
+
+    <section aria-labelledby="models-title">
+      <h2 id="models-title">模型清單</h2>
+      <div class="controls">
+        <label>搜尋 <input id="search" type="search" placeholder="名稱、格式或路徑"></label>
+        <label>來源 <select id="filter"><option value="">全部</option></select></label>
+        <p id="model-count"></p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">模型／路徑</th><th scope="col">來源</th><th scope="col">類型</th><th scope="col">邏輯大小</th><th scope="col">修改時間</th></tr></thead>
+          <tbody id="models"></tbody>
+        </table>
+      </div>
+      <button id="more" type="button" hidden>顯示更多</button>
+    </section>
+  </main>
+</body>
+</html>
